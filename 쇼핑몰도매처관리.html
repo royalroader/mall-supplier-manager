@@ -1,0 +1,3219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>쇼핑몰 도매처 업로드 현황 – 내 현황판</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --line: #d8dde6;
+      --line-strong: #aab3c2;
+      --text: #1c2430;
+      --muted: #667085;
+      --accent: #1769aa;
+      --accent-strong: #0f558c;
+      --none: #eef1f5;
+      --todo: #d7e7ff;
+      --partial: #ffe7a8;
+      --done: #ccebd8;
+      --issue: #ffd0d0;
+      --mall-head: #eaf6ff;
+      --mall-head-strong: #d8edfb;
+      --supplier-head: #edf8f1;
+      --supplier-head-strong: #d8f0e2;
+      --none-text: #747d8c;
+      --todo-text: #174c85;
+      --partial-text: #8a5900;
+      --done-text: #17663a;
+      --issue-text: #9f1f1f;
+      --shadow: 0 14px 34px rgba(28, 36, 48, .12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 22px 14px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .maker-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border: 1px solid #c8d7e8;
+      border-radius: 6px;
+      background: #f3f8ff;
+      color: #46637f;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .update-btn {
+      border-color: #1f6fd1;
+      background: #2b7de9;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .update-btn:hover {
+      background: #1f6fd1;
+    }
+
+    .owner-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 9px;
+      border: 1px solid var(--accent-strong);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .title-block p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 300px;
+    }
+
+    .button {
+      border: 1px solid var(--line-strong);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 11px;
+      min-height: 38px;
+      transition: background .15s, border-color .15s;
+    }
+
+    .button:hover {
+      border-color: var(--accent);
+      background: #f3f8fc;
+    }
+
+    .button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .button.primary:hover {
+      border-color: var(--accent-strong);
+      background: var(--accent-strong);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.3fr) minmax(160px, .8fr) minmax(160px, .8fr) auto;
+      gap: 10px;
+      align-items: end;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 22px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      padding: 9px 10px;
+      min-height: 38px;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 92px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(92px, 1fr));
+      gap: 8px;
+      padding: 12px 22px 0;
+      background: var(--bg);
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 11px;
+      min-height: 66px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.05;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 22px;
+      background: var(--bg);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(0, 0, 0, .1);
+      border-radius: 4px;
+    }
+
+    .matrix-wrap {
+      margin: 0 22px 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: auto;
+      min-height: 380px;
+      box-shadow: 0 1px 0 rgba(28, 36, 48, .03);
+    }
+
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      height: 70px;
+      min-width: 118px;
+      max-width: 118px;
+      padding: 8px 6px;
+      vertical-align: bottom;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: linear-gradient(180deg, var(--mall-head), var(--mall-head-strong));
+    }
+
+    th:first-child {
+      left: 0;
+      z-index: 4;
+      min-width: 184px;
+      max-width: 184px;
+      background: linear-gradient(180deg, var(--supplier-head), var(--supplier-head-strong));
+      text-align: left;
+      padding-left: 12px;
+    }
+
+    .mall-col {
+      display: grid;
+      gap: 3px;
+      justify-items: center;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .mall-platform {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .mall-name {
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.18;
+    }
+
+    .mall-total {
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .supplier-cell {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      width: 184px;
+      min-width: 184px;
+      max-width: 184px;
+      background: var(--supplier-head);
+      padding: 9px 10px;
+      vertical-align: middle;
+      border-right-color: var(--line-strong);
+    }
+
+    .floating-matrix-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 70px;
+      display: none;
+      overflow: hidden;
+      z-index: 15;
+      pointer-events: none;
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 8px 18px rgba(28, 36, 48, .14);
+    }
+
+    .floating-matrix-header.visible {
+      display: flex;
+    }
+
+    .floating-corner {
+      height: 70px;
+      min-width: 184px;
+      padding: 8px 6px 8px 12px;
+      display: flex;
+      align-items: flex-end;
+      border-right: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--supplier-head), var(--supplier-head-strong));
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .floating-mall-window {
+      height: 70px;
+      overflow: hidden;
+      flex: 1;
+      background: var(--mall-head);
+    }
+
+    .floating-mall-track {
+      height: 70px;
+      display: flex;
+      will-change: transform;
+    }
+
+    .floating-mall {
+      width: 118px;
+      min-width: 118px;
+      max-width: 118px;
+      height: 70px;
+      padding: 8px 6px;
+      display: grid;
+      align-content: end;
+      justify-items: center;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--mall-head), var(--mall-head-strong));
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .floating-x-scroll {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      height: 20px;
+      display: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      z-index: 16;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+      background: rgba(255, 255, 255, .96);
+      box-shadow: 0 -6px 18px rgba(28, 36, 48, .14);
+    }
+
+    .floating-x-scroll.visible {
+      display: block;
+    }
+
+    .floating-x-scroll-inner {
+      height: 1px;
+    }
+
+    .supplier-name {
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .supplier-codes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .supplier-edit {
+      display: block;
+      width: 100%;
+      border: 0;
+      background: none;
+      padding: 0;
+      text-align: left;
+      color: inherit;
+      font: inherit;
+    }
+
+    .supplier-edit .supplier-name {
+      display: block;
+    }
+
+    .supplier-edit:hover .supplier-name {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .mall-edit {
+      display: block;
+      width: 100%;
+      border: 0;
+      background: none;
+      padding: 0;
+      color: inherit;
+      font: inherit;
+    }
+
+    .mall-edit:hover .mall-name {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .floating-mall .mall-edit {
+      pointer-events: auto;
+    }
+
+    .code {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      padding: 2px 5px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #f9fafb;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .status-cell {
+      min-width: 118px;
+      max-width: 118px;
+      height: 54px;
+      padding: 5px;
+      background: #fff;
+    }
+
+    .status-button {
+      width: 100%;
+      height: 100%;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      gap: 1px;
+      padding: 4px;
+      transition: transform .1s, border-color .1s, box-shadow .1s;
+    }
+
+    .status-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(23, 105, 170, .45);
+      box-shadow: 0 3px 10px rgba(28, 36, 48, .09);
+    }
+
+    .status-label {
+      display: block;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .status-meta {
+      display: block;
+      font-size: 10px;
+      color: rgba(0, 0, 0, .58);
+      max-width: 94px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-none {
+      background: var(--none);
+      color: var(--none-text);
+    }
+
+    .status-todo {
+      background: var(--todo);
+      color: var(--todo-text);
+    }
+
+    .status-partial {
+      background: var(--partial);
+      color: var(--partial-text);
+    }
+
+    .status-done {
+      background: var(--done);
+      color: var(--done-text);
+    }
+
+    .status-issue {
+      background: var(--issue);
+      color: var(--issue-text);
+    }
+
+    .group-row td {
+      position: sticky;
+      top: 70px;
+      z-index: 1;
+      background: #eef2f7;
+      border-bottom-color: var(--line-strong);
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+    }
+
+    .empty {
+      padding: 38px 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(15, 23, 42, .35);
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal {
+      width: min(620px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: auto auto minmax(220px, 1fr) auto;
+      overflow: hidden;
+      overscroll-behavior: contain;
+      pointer-events: auto;
+    }
+
+    .add-supplier-modal {
+      grid-template-rows: 1fr;
+    }
+
+    .modal-form {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(160px, 1fr) auto;
+    }
+
+    .modal-form-body {
+      padding: 16px 18px;
+      overflow: auto;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      overscroll-behavior: contain;
+    }
+
+    .modal-header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .modal-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .modal-search {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .delete-list {
+      overflow: auto;
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+      overscroll-behavior: contain;
+    }
+
+    .delete-item {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      padding: 10px 12px;
+      text-align: left;
+      display: grid;
+      gap: 3px;
+    }
+
+    .delete-item:hover {
+      border-color: var(--accent);
+      background: #f4f9fd;
+    }
+
+    .delete-item.selected {
+      border-color: var(--accent);
+      background: #e9f3fb;
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .delete-item-title {
+      font-weight: 700;
+    }
+
+    .delete-item-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .order-modal {
+      width: min(760px, 100%);
+    }
+
+    .order-layout {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) 132px;
+      gap: 10px;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .order-list {
+      padding: 0;
+    }
+
+    .order-item {
+      grid-template-columns: 34px 1fr;
+      align-items: center;
+    }
+
+    .order-number {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      background: #eef2f7;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .order-item.selected .order-number {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .order-item-body {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    .order-controls {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .uplat-modal {
+      width: min(640px, 100%);
+      grid-template-rows: auto minmax(0, auto);
+    }
+
+    .uplat-body {
+      min-height: 0;
+      overflow: auto;
+      padding: 16px 18px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      overscroll-behavior: contain;
+    }
+
+    #uplatStatusText:empty {
+      display: none;
+    }
+
+    .uplat-row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .uplat-bookmark-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .modal-footer {
+      border-top: 1px solid var(--line);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .selected-text {
+      color: var(--muted);
+      font-size: 13px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .danger {
+      border-color: #b42318;
+      background: #b42318;
+      color: #fff;
+    }
+
+    .danger:hover {
+      border-color: #912018;
+      background: #912018;
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: rgba(15, 23, 42, .28);
+      z-index: 20;
+    }
+
+    .drawer-backdrop.open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: min(440px, 100vw);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      transform: translateX(102%);
+      transition: transform .18s ease-out;
+      z-index: 21;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header,
+    .drawer-footer {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .drawer-footer {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .drawer-header h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.25;
+    }
+
+    .drawer-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .drawer-body {
+      padding: 16px;
+      overflow: auto;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Compact matrix spacing; keep text sizes and header height unchanged. */
+    th, .status-cell, .floating-mall {
+      min-width: 100px;
+      max-width: 100px;
+    }
+
+    .floating-mall { width: 100px; }
+
+    th:first-child, .supplier-cell, .floating-corner {
+      width: 156px;
+      min-width: 156px;
+      max-width: 156px;
+    }
+
+    .supplier-cell { padding: 6px 8px; }
+    .status-cell { height: 48px; padding: 3px; }
+    .status-button { padding: 3px; }
+    .status-meta { max-width: 84px; }
+
+    @media (max-width: 920px) {
+      .topbar {
+        display: grid;
+      }
+
+      .actions {
+        justify-content: flex-start;
+        min-width: 0;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+
+      .order-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .order-controls {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      th:first-child,
+      .supplier-cell {
+        min-width: 156px;
+        max-width: 156px;
+        width: 156px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      header,
+      .toolbar,
+      .stats,
+      .legend {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .matrix-wrap {
+        margin-left: 12px;
+        margin-right: 12px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="topbar">
+        <div class="title-block">
+          <h1>쇼핑몰 도매처 업로드 현황 <span class="owner-badge">내 현황판</span> <span class="maker-badge">Made by 로얄로더</span> <span class="maker-badge" id="versionBadge"></span></h1>
+          <p>셀을 클릭하면 상태가 바뀌고, 더블클릭하면 상품 수·날짜·메모를 자세히 기록할 수 있습니다. 도매처명이나 쇼핑몰명을 클릭하면 이름을 수정할 수 있습니다.</p>
+        </div>
+        <div class="actions">
+          <button class="button update-btn hidden" id="updateBtn" type="button"></button>
+          <button class="button primary" id="addSupplierBtn" type="button">도매처 추가</button>
+          <button class="button" id="deleteSupplierBtn" type="button">도매처 삭제</button>
+          <button class="button" id="orderSupplierBtn" type="button">도매처 순서</button>
+          <button class="button primary" id="addMallBtn" type="button">쇼핑몰 추가</button>
+          <button class="button" id="deleteMallBtn" type="button">쇼핑몰 삭제</button>
+          <button class="button" id="orderMallBtn" type="button">쇼핑몰 순서</button>
+          <button class="button" id="uplatBtn" type="button">유플랫 연동</button>
+          <button class="button primary" id="saveJsonBtn" type="button">저장하기</button>
+          <label class="button primary" for="loadJsonFile">불러오기</label>
+          <input class="hidden" id="loadJsonFile" type="file" accept=".json,application/json" />
+          <button class="button" id="exportBtn" type="button">CSV 내보내기</button>
+          <label class="button" for="importFile">CSV 가져오기</label>
+          <input class="hidden" id="importFile" type="file" accept=".csv,text/csv" />
+          <button class="button" id="resetBtn" type="button">초기화</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="검색과 필터">
+      <div class="field">
+        <label for="searchInput">검색</label>
+        <input id="searchInput" type="search" placeholder="쇼핑몰, 도매처, 코드 검색" />
+      </div>
+      <div class="field">
+        <label for="platformFilter">쇼핑몰 묶음</label>
+        <select id="platformFilter"></select>
+      </div>
+      <div class="field">
+        <label for="statusFilter">상태</label>
+        <select id="statusFilter">
+          <option value="all">전체 보기</option>
+          <option value="done">완료만</option>
+          <option value="partial">일부만</option>
+          <option value="todo">예정만</option>
+          <option value="issue">문제만</option>
+          <option value="none">미진행만</option>
+          <option value="active">업로드 있음</option>
+        </select>
+      </div>
+      <button class="button" id="clearFiltersBtn" type="button">필터 해제</button>
+    </section>
+
+    <section class="stats" aria-label="요약">
+      <div class="stat"><strong id="statSuppliers">0</strong><span>도매처</span></div>
+      <div class="stat"><strong id="statMalls">0</strong><span>쇼핑몰</span></div>
+      <div class="stat"><strong id="statDone">0</strong><span>완료 셀</span></div>
+      <div class="stat"><strong id="statPartial">0</strong><span>일부 셀</span></div>
+      <div class="stat"><strong id="statIssue">0</strong><span>문제 셀</span></div>
+    </section>
+
+    <section class="legend" aria-label="상태 설명">
+      <span class="legend-item"><span class="swatch status-none"></span>미진행</span>
+      <span class="legend-item"><span class="swatch status-todo"></span>예정</span>
+      <span class="legend-item"><span class="swatch status-partial"></span>일부</span>
+      <span class="legend-item"><span class="swatch status-done"></span>완료</span>
+      <span class="legend-item"><span class="swatch status-issue"></span>문제</span>
+    </section>
+
+    <main class="matrix-wrap" aria-label="쇼핑몰별 도매처 업로드 표">
+      <table id="matrixTable"></table>
+    </main>
+    <div class="floating-matrix-header" id="floatingMatrixHeader" aria-hidden="true"></div>
+    <div class="floating-x-scroll" id="floatingXScroll" aria-hidden="true">
+      <div class="floating-x-scroll-inner" id="floatingXScrollInner"></div>
+    </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-label="상세 편집 패널">
+    <div class="drawer-header">
+      <h2 id="drawerTitle">상세 편집</h2>
+      <p id="drawerSubtitle"></p>
+    </div>
+    <form id="detailForm">
+      <div class="drawer-body">
+        <div class="field">
+          <label for="detailStatus">상태</label>
+          <select id="detailStatus">
+            <option value="none">미진행</option>
+            <option value="todo">예정</option>
+            <option value="partial">일부</option>
+            <option value="done">완료</option>
+            <option value="issue">문제</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="detailCount">상품 수</label>
+          <input id="detailCount" type="number" min="0" step="1" placeholder="예: 120" />
+        </div>
+        <div class="field">
+          <label for="detailDate">마지막 업로드일</label>
+          <input id="detailDate" type="date" />
+        </div>
+        <div class="field">
+          <label for="detailLink">관리 링크</label>
+          <input id="detailLink" type="url" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label for="detailMemo">메모</label>
+          <textarea id="detailMemo" placeholder="계정, 카테고리, 주의사항 등을 기록"></textarea>
+        </div>
+        <p class="helper">CSV로 내보내면 현재 체크한 상태와 상세 메모까지 같이 저장됩니다.</p>
+      </div>
+      <div class="drawer-footer">
+        <button class="button" id="openLinkBtn" type="button">링크 열기</button>
+        <button class="button" id="closeDrawerBtn" type="button">닫기</button>
+        <button class="button primary" type="submit">저장</button>
+      </div>
+    </form>
+  </aside>
+
+  <div class="modal-backdrop" id="supplierModalBackdrop">
+    <section class="modal add-supplier-modal" role="dialog" aria-modal="true" aria-labelledby="supplierModalTitle">
+      <form class="modal-form" id="supplierForm">
+        <div class="modal-header">
+          <h2 id="supplierModalTitle">도매처 추가</h2>
+          <p id="supplierModalSubtitle">도매처명과 공급사코드만 입력합니다.</p>
+        </div>
+        <div class="modal-form-body">
+          <div class="field">
+            <label for="supplierNameInput">도매처명</label>
+            <input id="supplierNameInput" type="text" autocomplete="off" placeholder="예: 도매처A" required />
+          </div>
+          <div class="field">
+            <label for="supplierCodeInput">공급사코드</label>
+            <input id="supplierCodeInput" type="text" autocomplete="off" placeholder="예: CODE01" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <span class="selected-text" id="supplierModalHint">입력 후 바로 도매처 목록에 추가됩니다.</span>
+          <div class="modal-actions">
+            <button class="button" id="supplierCancelBtn" type="button">닫기</button>
+            <button class="button primary" id="supplierSubmitBtn" type="submit">추가</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="mallModalBackdrop">
+    <section class="modal add-supplier-modal" role="dialog" aria-modal="true" aria-labelledby="mallModalTitle">
+      <form class="modal-form" id="mallForm">
+        <div class="modal-header">
+          <h2 id="mallModalTitle">쇼핑몰 추가</h2>
+          <p id="mallModalSubtitle">쇼핑몰 묶음과 쇼핑몰명을 입력합니다.</p>
+        </div>
+        <div class="modal-form-body">
+          <div class="field">
+            <label for="mallPlatformInput">쇼핑몰 묶음</label>
+            <input id="mallPlatformInput" type="text" autocomplete="off" placeholder="예: 스마트스토어" required />
+          </div>
+          <div class="field">
+            <label for="mallNameInput">쇼핑몰명</label>
+            <input id="mallNameInput" type="text" autocomplete="off" placeholder="예: 스토어명" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <span class="selected-text" id="mallModalHint">입력 후 바로 쇼핑몰 목록에 추가됩니다.</span>
+          <div class="modal-actions">
+            <button class="button" id="mallCancelBtn" type="button">닫기</button>
+            <button class="button primary" id="mallSubmitBtn" type="submit">추가</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="deleteModalBackdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+      <div class="modal-header">
+        <h2 id="deleteModalTitle">삭제할 항목 선택</h2>
+        <p id="deleteModalSubtitle">목록에서 항목을 클릭한 뒤 아래 삭제 버튼을 누르세요.</p>
+      </div>
+      <div class="modal-search">
+        <div class="field">
+          <label for="deleteSearchInput">검색</label>
+          <input id="deleteSearchInput" type="search" placeholder="이름, 묶음, 코드 검색" />
+        </div>
+      </div>
+      <div class="delete-list" id="deleteItemList"></div>
+      <div class="modal-footer">
+        <span class="selected-text" id="deleteSelectedText">선택된 항목이 없습니다.</span>
+        <div class="modal-actions">
+          <button class="button" id="deleteCancelBtn" type="button">닫기</button>
+          <button class="button danger hidden" id="deleteConfirmBtn" type="button">삭제</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="orderModalBackdrop">
+    <section class="modal order-modal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+      <div class="modal-header">
+        <h2 id="orderModalTitle">순서 변경</h2>
+        <p id="orderModalSubtitle">항목을 선택한 뒤 이동 버튼으로 순서를 바꾸세요.</p>
+      </div>
+      <div class="modal-search">
+        <div class="field">
+          <label for="orderSearchInput">검색</label>
+          <input id="orderSearchInput" type="search" placeholder="이름, 묶음, 코드 검색" />
+        </div>
+      </div>
+      <div class="order-layout">
+        <div class="delete-list order-list" id="orderItemList"></div>
+        <div class="order-controls" aria-label="순서 이동">
+          <button class="button" id="orderTopBtn" type="button">맨 위</button>
+          <button class="button" id="orderUpBtn" type="button">위로</button>
+          <button class="button" id="orderDownBtn" type="button">아래로</button>
+          <button class="button" id="orderBottomBtn" type="button">맨 아래</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="selected-text" id="orderSelectedText">순서를 바꿀 항목을 선택하세요.</span>
+        <div class="modal-actions">
+          <button class="button" id="orderCloseBtn" type="button">닫기</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="uplatModalBackdrop">
+    <section class="modal uplat-modal" role="dialog" aria-modal="true" aria-labelledby="uplatModalTitle">
+      <div class="modal-header">
+        <h2 id="uplatModalTitle">유플랫 연동</h2>
+      </div>
+      <div class="uplat-body" id="uplatBody">
+        <div class="uplat-row-actions">
+          <a class="button primary uplat-bookmark-link" id="uplatBookmarkLink" href="#" draggable="true">북마크바로 드래그</a>
+          <label class="button" for="uplatImportFile">수집 결과 파일 가져오기</label>
+          <input class="hidden" id="uplatImportFile" type="file" accept=".json,application/json" />
+          <button class="button" id="uplatCloseBtn" type="button">닫기</button>
+        </div>
+        <span class="selected-text" id="uplatStatusText" role="status" aria-live="polite"></span>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "supplierMallDashboard.public.v1";
+    const APP_VERSION = "1.0.0";
+    // 배포용 빌드(build-public.cjs)에서만 채운다. 비어 있으면 업데이트 확인을 하지 않는다.
+    const UPDATE_REPO = "royalroader/mall-supplier-manager";
+    const UPDATE_FILE = "쇼핑몰도매처관리.html";
+
+    const statusOrder = ["none", "todo", "partial", "done", "issue"];
+    const statusLabels = {
+      none: "미진행",
+      todo: "예정",
+      partial: "일부",
+      done: "완료",
+      issue: "문제"
+    };
+
+    const defaultMalls = [{ id: "example-store", platform: "스마트스토어", name: "예시스토어" }];
+
+    const defaultSuppliers = [{ id: "example-a", name: "예시도매처A", productCode: "", supplierCode: "DEMO01" }, { id: "example-b", name: "예시도매처B", productCode: "", supplierCode: "DEMO02" }];
+
+    const resetMalls = [{ id: "example-store", platform: "스마트스토어", name: "예시스토어" }];
+
+    const resetSuppliers = [{ id: "example-a", name: "예시도매처A", productCode: "", supplierCode: "DEMO01" }, { id: "example-b", name: "예시도매처B", productCode: "", supplierCode: "DEMO02" }];
+
+    let state = loadState();
+    let activeCell = null;
+    let editingSupplierId = "";
+    let editingMallId = "";
+    let deleteMode = null;
+    let selectedDeleteIds = new Set();
+    let orderMode = null;
+    let selectedOrderId = "";
+    let syncingFloatingXScroll = false;
+
+    const elements = {
+      table: document.getElementById("matrixTable"),
+      matrixWrap: document.querySelector(".matrix-wrap"),
+      floatingHeader: document.getElementById("floatingMatrixHeader"),
+      floatingXScroll: document.getElementById("floatingXScroll"),
+      floatingXScrollInner: document.getElementById("floatingXScrollInner"),
+      search: document.getElementById("searchInput"),
+      platformFilter: document.getElementById("platformFilter"),
+      statusFilter: document.getElementById("statusFilter"),
+      clearFilters: document.getElementById("clearFiltersBtn"),
+      addSupplier: document.getElementById("addSupplierBtn"),
+      deleteSupplier: document.getElementById("deleteSupplierBtn"),
+      orderSupplier: document.getElementById("orderSupplierBtn"),
+      addMall: document.getElementById("addMallBtn"),
+      deleteMall: document.getElementById("deleteMallBtn"),
+      orderMall: document.getElementById("orderMallBtn"),
+      saveJson: document.getElementById("saveJsonBtn"),
+      loadJsonFile: document.getElementById("loadJsonFile"),
+      exportBtn: document.getElementById("exportBtn"),
+      importFile: document.getElementById("importFile"),
+      resetBtn: document.getElementById("resetBtn"),
+      uplatBtn: document.getElementById("uplatBtn"),
+      drawer: document.getElementById("drawer"),
+      backdrop: document.getElementById("drawerBackdrop"),
+      detailForm: document.getElementById("detailForm"),
+      drawerTitle: document.getElementById("drawerTitle"),
+      drawerSubtitle: document.getElementById("drawerSubtitle"),
+      detailStatus: document.getElementById("detailStatus"),
+      detailCount: document.getElementById("detailCount"),
+      detailDate: document.getElementById("detailDate"),
+      detailLink: document.getElementById("detailLink"),
+      detailMemo: document.getElementById("detailMemo"),
+      openLink: document.getElementById("openLinkBtn"),
+      closeDrawer: document.getElementById("closeDrawerBtn"),
+      supplierModalBackdrop: document.getElementById("supplierModalBackdrop"),
+      supplierForm: document.getElementById("supplierForm"),
+      supplierModalTitle: document.getElementById("supplierModalTitle"),
+      supplierModalSubtitle: document.getElementById("supplierModalSubtitle"),
+      supplierModalHint: document.getElementById("supplierModalHint"),
+      supplierSubmit: document.getElementById("supplierSubmitBtn"),
+      supplierNameInput: document.getElementById("supplierNameInput"),
+      supplierCodeInput: document.getElementById("supplierCodeInput"),
+      supplierCancel: document.getElementById("supplierCancelBtn"),
+      mallModalBackdrop: document.getElementById("mallModalBackdrop"),
+      mallForm: document.getElementById("mallForm"),
+      mallModalTitle: document.getElementById("mallModalTitle"),
+      mallModalSubtitle: document.getElementById("mallModalSubtitle"),
+      mallModalHint: document.getElementById("mallModalHint"),
+      mallSubmit: document.getElementById("mallSubmitBtn"),
+      mallPlatformInput: document.getElementById("mallPlatformInput"),
+      mallNameInput: document.getElementById("mallNameInput"),
+      mallCancel: document.getElementById("mallCancelBtn"),
+      deleteModalBackdrop: document.getElementById("deleteModalBackdrop"),
+      deleteModalTitle: document.getElementById("deleteModalTitle"),
+      deleteModalSubtitle: document.getElementById("deleteModalSubtitle"),
+      deleteSearch: document.getElementById("deleteSearchInput"),
+      deleteItemList: document.getElementById("deleteItemList"),
+      deleteSelectedText: document.getElementById("deleteSelectedText"),
+      deleteCancel: document.getElementById("deleteCancelBtn"),
+      deleteConfirm: document.getElementById("deleteConfirmBtn"),
+      orderModalBackdrop: document.getElementById("orderModalBackdrop"),
+      orderModalTitle: document.getElementById("orderModalTitle"),
+      orderModalSubtitle: document.getElementById("orderModalSubtitle"),
+      orderSearch: document.getElementById("orderSearchInput"),
+      orderItemList: document.getElementById("orderItemList"),
+      orderSelectedText: document.getElementById("orderSelectedText"),
+      orderClose: document.getElementById("orderCloseBtn"),
+      orderTop: document.getElementById("orderTopBtn"),
+      orderUp: document.getElementById("orderUpBtn"),
+      orderDown: document.getElementById("orderDownBtn"),
+      orderBottom: document.getElementById("orderBottomBtn"),
+      uplatModalBackdrop: document.getElementById("uplatModalBackdrop"),
+      uplatBody: document.getElementById("uplatBody"),
+      uplatBookmarkLink: document.getElementById("uplatBookmarkLink"),
+      uplatImportFile: document.getElementById("uplatImportFile"),
+      uplatStatusText: document.getElementById("uplatStatusText"),
+      uplatClose: document.getElementById("uplatCloseBtn"),
+      statSuppliers: document.getElementById("statSuppliers"),
+      statMalls: document.getElementById("statMalls"),
+      statDone: document.getElementById("statDone"),
+      statPartial: document.getElementById("statPartial"),
+      statIssue: document.getElementById("statIssue")
+    };
+
+    function cloneItems(items) {
+      return items.map((item) => ({ ...item }));
+    }
+
+    function freshState() {
+      return {
+        suppliers: cloneItems(defaultSuppliers),
+        malls: cloneItems(defaultMalls),
+        cells: {}
+      };
+    }
+
+    function resetState() {
+      return {
+        suppliers: cloneItems(resetSuppliers),
+        malls: cloneItems(resetMalls),
+        cells: {}
+      };
+    }
+
+    function loadState() {
+      const fallback = freshState();
+
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved || !Array.isArray(saved.suppliers) || typeof saved.cells !== "object") {
+          return fallback;
+        }
+
+        return {
+          suppliers: Array.isArray(saved.suppliers) ? saved.suppliers : cloneItems(defaultSuppliers),
+          malls: Array.isArray(saved.malls) ? saved.malls : cloneItems(defaultMalls),
+          cells: saved.cells || {}
+        };
+      } catch {
+        return fallback;
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {
+        // 저장소가 막힌 환경에서도 화면 동작은 계속되도록 함
+      }
+      updateStats();
+    }
+
+    function cellKey(supplierId, mallId) {
+      return `${supplierId}__${mallId}`;
+    }
+
+    function getCell(supplierId, mallId) {
+      return state.cells[cellKey(supplierId, mallId)] || {
+        status: "none",
+        count: "",
+        date: "",
+        link: "",
+        memo: ""
+      };
+    }
+
+    function setCell(supplierId, mallId, data) {
+      state.cells[cellKey(supplierId, mallId)] = {
+        ...getCell(supplierId, mallId),
+        ...data
+      };
+      saveState();
+    }
+
+    function normalize(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function initFilters() {
+      const platforms = [...new Set(state.malls.map((mall) => mall.platform))];
+      elements.platformFilter.innerHTML = [
+        '<option value="all">전체 쇼핑몰</option>',
+        ...platforms.map((platform) => `<option value="${escapeHtml(platform)}">${escapeHtml(platform)}</option>`)
+      ].join("");
+    }
+
+    function filteredMalls() {
+      const selected = elements.platformFilter.value;
+      if (selected === "all") return state.malls;
+      return state.malls.filter((mall) => mall.platform === selected);
+    }
+
+    function supplierMatchesSearch(supplier, search) {
+      if (!search) return true;
+      const text = normalize([supplier.name, supplier.supplierCode].join(" "));
+      return text.includes(search);
+    }
+
+    function mallMatchesSearch(mall, search) {
+      if (!search) return true;
+      const text = normalize([mall.platform, mall.name].join(" "));
+      return text.includes(search);
+    }
+
+    function rowHasStatus(supplier, visibleMalls, status) {
+      if (status === "all") return true;
+
+      return visibleMalls.some((mall) => {
+        const cell = getCell(supplier.id, mall.id);
+        if (status === "active") return cell.status !== "none";
+        return cell.status === status;
+      });
+    }
+
+    function render() {
+      const search = normalize(elements.search.value);
+      const status = elements.statusFilter.value;
+      const platformMalls = filteredMalls();
+      const searchedMalls = platformMalls.filter((mall) => mallMatchesSearch(mall, search));
+      const searchedSuppliers = state.suppliers.filter((supplier) => supplierMatchesSearch(supplier, search));
+      // 검색어가 도매처에만 걸리면 쇼핑몰은 전체 표시, 쇼핑몰에만 걸리면 도매처는 전체 표시
+      const visibleMalls = (!searchedMalls.length && searchedSuppliers.length) ? platformMalls : searchedMalls;
+      const visibleSuppliers = ((!searchedSuppliers.length && searchedMalls.length) ? state.suppliers : searchedSuppliers)
+        .filter((supplier) => rowHasStatus(supplier, visibleMalls, status));
+
+      if (!visibleMalls.length || !visibleSuppliers.length) {
+        elements.table.innerHTML = `<tr><td class="empty">조건에 맞는 결과가 없습니다.</td></tr>`;
+        renderFloatingHeader([]);
+        updateFloatingXScroll();
+        updateStats();
+        return;
+      }
+
+      const thead = `
+        <thead>
+          <tr>
+            <th>도매처</th>
+            ${visibleMalls.map((mall) => `
+              <th>
+                ${renderMallHeaderContent(mall, visibleSuppliers)}
+              </th>
+            `).join("")}
+          </tr>
+        </thead>
+      `;
+
+      const tbody = `
+        <tbody>
+          ${visibleSuppliers.map((supplier) => `
+            <tr>
+              <td class="supplier-cell">
+                <button class="supplier-edit" type="button" data-supplier-id="${escapeHtml(supplier.id)}" title="클릭: 도매처명·공급사코드 수정">
+                  <span class="supplier-name">${escapeHtml(supplier.name)}</span>
+                  <span class="supplier-codes">
+                    <span class="code">${escapeHtml(supplier.supplierCode)}</span>
+                  </span>
+                </button>
+              </td>
+              ${visibleMalls.map((mall) => renderStatusCell(supplier, mall)).join("")}
+            </tr>
+          `).join("")}
+        </tbody>
+      `;
+
+      elements.table.innerHTML = thead + tbody;
+      renderFloatingHeader(visibleMalls, visibleSuppliers);
+      updateFloatingXScroll();
+      bindCellButtons();
+      updateStats();
+    }
+
+    function renderFloatingHeader(visibleMalls, visibleSuppliers = []) {
+      if (!visibleMalls.length) {
+        elements.floatingHeader.classList.remove("visible");
+        elements.floatingHeader.innerHTML = "";
+        return;
+      }
+
+      elements.floatingHeader.innerHTML = `
+        <div class="floating-corner">도매처</div>
+        <div class="floating-mall-window">
+          <div class="floating-mall-track">
+            ${visibleMalls.map((mall) => `
+              <div class="floating-mall">
+                ${renderMallHeaderContent(mall, visibleSuppliers)}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      bindEditButtons(elements.floatingHeader);
+      updateFloatingHeader();
+    }
+
+    function renderMallHeaderContent(mall, visibleSuppliers) {
+      const total = mallCountTotal(mall, visibleSuppliers);
+      const totalText = total > 0 ? `<span class="mall-total">합계 ${escapeHtml(formatCount(total))}개</span>` : "";
+
+      return `
+        <button class="mall-edit" type="button" data-mall-id="${escapeHtml(mall.id)}" title="클릭: 쇼핑몰 묶음·이름 수정">
+          <span class="mall-col">
+            <span class="mall-platform">${escapeHtml(mall.platform)}</span>
+            <span class="mall-name">${escapeHtml(mall.name)}</span>
+            ${totalText}
+          </span>
+        </button>
+      `;
+    }
+
+    function mallCountTotal(mall, visibleSuppliers) {
+      return visibleSuppliers.reduce((total, supplier) => total + parseCountValue(getCell(supplier.id, mall.id).count), 0);
+    }
+
+    function parseCountValue(value) {
+      const number = Number(String(value || "").replaceAll(",", "").trim());
+      return Number.isFinite(number) && number > 0 ? number : 0;
+    }
+
+    function formatCount(value) {
+      return Math.round(value).toLocaleString("ko-KR");
+    }
+
+    function updateFloatingHeader() {
+      const header = elements.floatingHeader;
+      const matrix = elements.matrixWrap;
+      if (!header || !matrix || !header.innerHTML) return;
+
+      const rect = matrix.getBoundingClientRect();
+      const headerHeight = elements.table.querySelector("thead")?.getBoundingClientRect().height || 70;
+      const shouldShow = rect.top < 0 && rect.bottom > headerHeight;
+
+      if (!shouldShow) {
+        header.classList.remove("visible");
+        return;
+      }
+
+      const supplierWidth = getSupplierColumnWidth();
+      const visibleLeft = Math.max(0, rect.left);
+      const visibleRight = Math.min(window.innerWidth, rect.right);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+
+      header.style.left = `${visibleLeft}px`;
+      header.style.width = `${visibleWidth}px`;
+      header.style.height = `${headerHeight}px`;
+
+      const corner = header.querySelector(".floating-corner");
+      const mallWindow = header.querySelector(".floating-mall-window");
+      const track = header.querySelector(".floating-mall-track");
+
+      if (corner) {
+        corner.style.width = `${supplierWidth}px`;
+        corner.style.minWidth = `${supplierWidth}px`;
+      }
+
+      if (mallWindow) {
+        mallWindow.style.width = `${Math.max(0, visibleWidth - supplierWidth)}px`;
+      }
+
+      if (track) {
+        track.style.transform = `translateX(${-matrix.scrollLeft}px)`;
+      }
+
+      header.classList.add("visible");
+    }
+
+    function getSupplierColumnWidth() {
+      const supplierHeader = elements.table.querySelector("th:first-child");
+      return supplierHeader ? supplierHeader.getBoundingClientRect().width : 184;
+    }
+
+    function updateFloatingXScroll() {
+      const matrix = elements.matrixWrap;
+      const scroller = elements.floatingXScroll;
+      const inner = elements.floatingXScrollInner;
+      if (!matrix || !scroller || !inner) return;
+
+      const hasOverflow = matrix.scrollWidth > matrix.clientWidth + 1;
+      const rect = matrix.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (!hasOverflow || !inView || elements.table.querySelector(".empty")) {
+        scroller.classList.remove("visible");
+        return;
+      }
+
+      const visibleLeft = Math.max(0, rect.left);
+      const visibleRight = Math.min(window.innerWidth, rect.right);
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+
+      if (visibleWidth <= 0) {
+        scroller.classList.remove("visible");
+        return;
+      }
+
+      scroller.style.left = `${visibleLeft}px`;
+      scroller.style.width = `${visibleWidth}px`;
+      inner.style.width = `${matrix.scrollWidth}px`;
+
+      if (!syncingFloatingXScroll && Math.abs(scroller.scrollLeft - matrix.scrollLeft) > 1) {
+        scroller.scrollLeft = matrix.scrollLeft;
+      }
+
+      scroller.classList.add("visible");
+    }
+
+    function syncMatrixScrollFromFloating() {
+      const matrix = elements.matrixWrap;
+      const scroller = elements.floatingXScroll;
+      if (!matrix || !scroller) return;
+
+      syncingFloatingXScroll = true;
+      matrix.scrollLeft = scroller.scrollLeft;
+      updateFloatingHeader();
+      window.requestAnimationFrame(() => {
+        syncingFloatingXScroll = false;
+      });
+    }
+
+    function renderStatusCell(supplier, mall) {
+      const cell = getCell(supplier.id, mall.id);
+      const status = statusOrder.includes(cell.status) ? cell.status : "none";
+      const meta = cell.count ? `${cell.count}개` : (cell.date || cell.memo || "");
+
+      return `
+        <td class="status-cell">
+          <button
+            class="status-button status-${status}"
+            type="button"
+            data-supplier-id="${escapeHtml(supplier.id)}"
+            data-mall-id="${escapeHtml(mall.id)}"
+            title="클릭: 상태 변경 / 더블클릭: 상세 편집"
+          >
+            <span class="status-label">${statusLabels[status]}</span>
+            <span class="status-meta">${escapeHtml(meta)}</span>
+          </button>
+        </td>
+      `;
+    }
+
+    function bindEditButtons(root) {
+      root.querySelectorAll(".supplier-edit").forEach((button) => {
+        button.addEventListener("click", () => {
+          const supplier = state.suppliers.find((item) => item.id === button.dataset.supplierId);
+          if (supplier) openSupplierModal(supplier);
+        });
+      });
+
+      root.querySelectorAll(".mall-edit").forEach((button) => {
+        button.addEventListener("click", () => {
+          const mall = state.malls.find((item) => item.id === button.dataset.mallId);
+          if (mall) openMallModal(mall);
+        });
+      });
+    }
+
+    function bindCellButtons() {
+      bindEditButtons(elements.table);
+      elements.table.querySelectorAll(".status-button").forEach((button) => {
+        let clickTimer = null;
+
+        button.addEventListener("click", () => {
+          window.clearTimeout(clickTimer);
+          clickTimer = window.setTimeout(() => {
+            const supplierId = button.dataset.supplierId;
+            const mallId = button.dataset.mallId;
+            const current = getCell(supplierId, mallId);
+            const nextStatus = statusOrder[(statusOrder.indexOf(current.status) + 1) % statusOrder.length];
+            setCell(supplierId, mallId, { status: nextStatus });
+            render();
+          }, 190);
+        });
+
+        button.addEventListener("dblclick", (event) => {
+          event.preventDefault();
+          window.clearTimeout(clickTimer);
+          clickTimer = null;
+          openDrawer(button.dataset.supplierId, button.dataset.mallId);
+        });
+      });
+    }
+
+    function openDrawer(supplierId, mallId) {
+      const supplier = state.suppliers.find((item) => item.id === supplierId);
+      const mall = state.malls.find((item) => item.id === mallId);
+      if (!supplier || !mall) return;
+
+      activeCell = { supplierId, mallId };
+      const cell = getCell(supplierId, mallId);
+      elements.drawerTitle.textContent = `${supplier.name} → ${mall.name}`;
+      elements.drawerSubtitle.textContent = `${mall.platform} / ${supplier.supplierCode}`;
+      elements.detailStatus.value = cell.status || "none";
+      elements.detailCount.value = cell.count || "";
+      elements.detailDate.value = cell.date || "";
+      elements.detailLink.value = cell.link || "";
+      elements.detailMemo.value = cell.memo || "";
+      elements.drawer.classList.add("open");
+      elements.backdrop.classList.add("open");
+      elements.detailStatus.focus();
+    }
+
+    function closeDrawer() {
+      elements.drawer.classList.remove("open");
+      elements.backdrop.classList.remove("open");
+      activeCell = null;
+    }
+
+    function updateStats() {
+      const totals = {
+        done: 0,
+        partial: 0,
+        issue: 0
+      };
+
+      Object.values(state.cells).forEach((cell) => {
+        if (cell.status === "done") totals.done += 1;
+        if (cell.status === "partial") totals.partial += 1;
+        if (cell.status === "issue") totals.issue += 1;
+      });
+
+      elements.statSuppliers.textContent = state.suppliers.length;
+      elements.statMalls.textContent = state.malls.length;
+      elements.statDone.textContent = totals.done;
+      elements.statPartial.textContent = totals.partial;
+      elements.statIssue.textContent = totals.issue;
+    }
+
+    function containModalWheel(backdrop, fallbackScroller) {
+      const modal = backdrop.querySelector(".modal");
+      if (!modal) return;
+
+      modal.addEventListener("wheel", (event) => {
+        const scroller = event.target.closest(".delete-list, .modal-form-body") || fallbackScroller;
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!scroller) return;
+
+        const maxTop = scroller.scrollHeight - scroller.clientHeight;
+        const maxLeft = scroller.scrollWidth - scroller.clientWidth;
+        if (maxTop > 0) scroller.scrollTop += event.deltaY;
+        if (maxLeft > 0) scroller.scrollLeft += event.deltaX;
+      }, { passive: false });
+    }
+
+    function forwardBackdropWheel(backdrop) {
+      backdrop.addEventListener("wheel", (event) => {
+        if (event.target !== backdrop) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const scroller = getElementUnderBackdrop(backdrop, event.clientX, event.clientY);
+        if (!scroller) return;
+
+        scroller.scrollTop += event.deltaY;
+        scroller.scrollLeft += event.deltaX;
+      }, { passive: false });
+    }
+
+    function getElementUnderBackdrop(backdrop, x, y) {
+      const previousPointerEvents = backdrop.style.pointerEvents;
+      backdrop.style.pointerEvents = "none";
+      const target = document.elementFromPoint(x, y);
+      backdrop.style.pointerEvents = previousPointerEvents;
+      return findScrollableParent(target);
+    }
+
+    function findScrollableParent(element) {
+      let current = element;
+
+      while (current && current !== document.documentElement) {
+        const style = window.getComputedStyle(current);
+        const canScrollY = /(auto|scroll)/.test(style.overflowY) && current.scrollHeight > current.clientHeight;
+        const canScrollX = /(auto|scroll)/.test(style.overflowX) && current.scrollWidth > current.clientWidth;
+        if (canScrollY || canScrollX) return current;
+        current = current.parentElement;
+      }
+
+      return document.scrollingElement || document.documentElement;
+    }
+
+    function addSupplier() {
+      openSupplierModal();
+    }
+
+    function openSupplierModal(supplier = null) {
+      editingSupplierId = supplier ? supplier.id : "";
+      elements.supplierForm.reset();
+
+      if (supplier) {
+        elements.supplierModalTitle.textContent = "도매처 수정";
+        elements.supplierModalSubtitle.textContent = "이름과 코드를 고쳐도 체크 상태·메모는 그대로 유지됩니다.";
+        elements.supplierModalHint.textContent = `수정 중: ${supplier.name} (${supplier.supplierCode || "-"})`;
+        elements.supplierSubmit.textContent = "저장";
+        elements.supplierNameInput.value = supplier.name;
+        elements.supplierCodeInput.value = supplier.supplierCode;
+      } else {
+        elements.supplierModalTitle.textContent = "도매처 추가";
+        elements.supplierModalSubtitle.textContent = "도매처명과 공급사코드만 입력합니다.";
+        elements.supplierModalHint.textContent = "입력 후 바로 도매처 목록에 추가됩니다.";
+        elements.supplierSubmit.textContent = "추가";
+      }
+
+      elements.supplierModalBackdrop.classList.add("open");
+      elements.supplierNameInput.focus();
+    }
+
+    function closeSupplierModal() {
+      elements.supplierModalBackdrop.classList.remove("open");
+      editingSupplierId = "";
+    }
+
+    function saveSupplier(event) {
+      event.preventDefault();
+
+      const name = elements.supplierNameInput.value.trim();
+      const supplierCode = elements.supplierCodeInput.value.trim();
+
+      if (!name || !supplierCode) {
+        alert("도매처명과 공급사코드를 모두 입력해 주세요.");
+        return;
+      }
+
+      const duplicated = state.suppliers.some((supplier) =>
+        supplier.id !== editingSupplierId && supplier.name === name && supplier.supplierCode === supplierCode);
+      if (duplicated && !confirm("같은 이름과 공급사코드의 도매처가 이미 있습니다.\n그래도 저장할까요?")) {
+        return;
+      }
+
+      if (editingSupplierId) {
+        const supplier = state.suppliers.find((item) => item.id === editingSupplierId);
+        if (supplier) {
+          supplier.name = name;
+          supplier.supplierCode = supplierCode;
+        }
+      } else {
+        const idBase = `${name}-${supplierCode || Date.now()}`;
+        const id = `supplier-${idBase}`
+          .toLowerCase()
+          .replace(/[^a-z0-9가-힣]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+
+        state.suppliers.push({
+          id: uniqueSupplierId(id),
+          name,
+          productCode: "",
+          supplierCode
+        });
+      }
+
+      saveState();
+      closeSupplierModal();
+      render();
+    }
+
+    function addMall() {
+      openMallModal();
+    }
+
+    function openMallModal(mall = null) {
+      editingMallId = mall ? mall.id : "";
+      elements.mallForm.reset();
+
+      if (mall) {
+        elements.mallModalTitle.textContent = "쇼핑몰 수정";
+        elements.mallModalSubtitle.textContent = "묶음과 이름을 고쳐도 체크 상태·메모는 그대로 유지됩니다.";
+        elements.mallModalHint.textContent = `수정 중: [${mall.platform}] ${mall.name}`;
+        elements.mallSubmit.textContent = "저장";
+        elements.mallPlatformInput.value = mall.platform;
+        elements.mallNameInput.value = mall.name;
+      } else {
+        elements.mallModalTitle.textContent = "쇼핑몰 추가";
+        elements.mallModalSubtitle.textContent = "쇼핑몰 묶음과 쇼핑몰명을 입력합니다.";
+        elements.mallModalHint.textContent = "입력 후 바로 쇼핑몰 목록에 추가됩니다.";
+        elements.mallSubmit.textContent = "추가";
+      }
+
+      elements.mallModalBackdrop.classList.add("open");
+      elements.mallPlatformInput.focus();
+    }
+
+    function closeMallModal() {
+      elements.mallModalBackdrop.classList.remove("open");
+      editingMallId = "";
+    }
+
+    function saveMall(event) {
+      event.preventDefault();
+
+      const platform = elements.mallPlatformInput.value.trim();
+      const name = elements.mallNameInput.value.trim();
+
+      if (!platform || !name) {
+        alert("쇼핑몰 묶음과 쇼핑몰명을 모두 입력해 주세요.");
+        return;
+      }
+
+      const duplicated = state.malls.some((mall) =>
+        mall.id !== editingMallId && mall.platform === platform && mall.name === name);
+      if (duplicated && !confirm("같은 묶음과 이름의 쇼핑몰이 이미 있습니다.\n그래도 저장할까요?")) {
+        return;
+      }
+
+      const wasEditing = Boolean(editingMallId);
+
+      if (wasEditing) {
+        const mall = state.malls.find((item) => item.id === editingMallId);
+        if (mall) {
+          mall.platform = platform;
+          mall.name = name;
+        }
+      } else {
+        const idBase = `${platform}-${name}`;
+        const id = `mall-${idBase}`
+          .toLowerCase()
+          .replace(/[^a-z0-9가-힣]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+
+        state.malls.push({
+          id: uniqueMallId(id),
+          platform,
+          name
+        });
+      }
+
+      saveState();
+      const previousPlatform = elements.platformFilter.value;
+      initFilters();
+      const keepPlatform = wasEditing
+        && Array.from(elements.platformFilter.options).some((option) => option.value === previousPlatform);
+      elements.platformFilter.value = keepPlatform ? previousPlatform : "all";
+      closeMallModal();
+      render();
+    }
+
+    function deleteSupplier() {
+      openDeleteModal("supplier");
+    }
+
+    function deleteMall() {
+      openDeleteModal("mall");
+    }
+
+    function openDeleteModal(mode) {
+      deleteMode = mode;
+      selectedDeleteIds = new Set();
+      elements.deleteSearch.value = "";
+      elements.deleteConfirm.classList.add("hidden");
+      elements.deleteSelectedText.textContent = "선택된 항목이 없습니다.";
+
+      if (mode === "supplier") {
+        elements.deleteModalTitle.textContent = "도매처 삭제";
+        elements.deleteModalSubtitle.textContent = "삭제할 도매처를 여러 개 클릭해서 선택하세요. 다시 클릭하면 선택이 해제됩니다.";
+      } else {
+        elements.deleteModalTitle.textContent = "쇼핑몰 삭제";
+        elements.deleteModalSubtitle.textContent = "삭제할 쇼핑몰을 여러 개 클릭해서 선택하세요. 다시 클릭하면 선택이 해제됩니다.";
+      }
+
+      renderDeleteList();
+      elements.deleteModalBackdrop.classList.add("open");
+      elements.deleteSearch.focus();
+    }
+
+    function closeDeleteModal() {
+      elements.deleteModalBackdrop.classList.remove("open");
+      deleteMode = null;
+      selectedDeleteIds = new Set();
+    }
+
+    function deleteItems() {
+      return deleteMode === "supplier" ? state.suppliers : state.malls;
+    }
+
+    function renderDeleteList() {
+      const items = deleteItems();
+      if (!items.length) {
+        elements.deleteItemList.innerHTML = `<div class="empty">삭제할 항목이 없습니다.</div>`;
+        elements.deleteConfirm.classList.add("hidden");
+        elements.deleteSelectedText.textContent = "삭제할 항목이 없습니다.";
+        return;
+      }
+
+      const search = normalize(elements.deleteSearch.value);
+      const filtered = items.filter((item) => deleteItemText(item).includes(search));
+
+      if (!filtered.length) {
+        elements.deleteItemList.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`;
+        updateDeleteSelectionUi();
+        return;
+      }
+
+      elements.deleteItemList.innerHTML = filtered.map((item) => {
+        const selected = selectedDeleteIds.has(item.id) ? " selected" : "";
+        const title = deleteMode === "supplier" ? item.name : item.name;
+        const meta = deleteMode === "supplier"
+          ? `공급사코드 ${item.supplierCode || "-"}`
+          : `쇼핑몰 묶음 ${item.platform}`;
+
+        return `
+          <button class="delete-item${selected}" type="button" data-delete-id="${escapeHtml(item.id)}">
+            <span class="delete-item-title">${escapeHtml(title)}</span>
+            <span class="delete-item-meta">${escapeHtml(meta)}</span>
+          </button>
+        `;
+      }).join("");
+
+      elements.deleteItemList.querySelectorAll(".delete-item").forEach((button) => {
+        button.addEventListener("click", () => {
+          const id = button.dataset.deleteId;
+          if (selectedDeleteIds.has(id)) {
+            selectedDeleteIds.delete(id);
+          } else {
+            selectedDeleteIds.add(id);
+          }
+          renderDeleteList();
+        });
+      });
+
+      updateDeleteSelectionUi();
+    }
+
+    function deleteItemText(item) {
+      if (!item) return "";
+      if (deleteMode === "supplier") {
+        return normalize([item.name, item.supplierCode].join(" "));
+      }
+      return normalize([item.platform, item.name].join(" "));
+    }
+
+    function deleteItemLabel(item) {
+      if (deleteMode === "supplier") {
+        return `${item.name} (${item.supplierCode || "-"})`;
+      }
+      return `[${item.platform}] ${item.name}`;
+    }
+
+    function updateDeleteSelectionUi() {
+      const selectedItems = deleteItems().filter((entry) => selectedDeleteIds.has(entry.id));
+      if (!selectedItems.length) {
+        elements.deleteSelectedText.textContent = "선택된 항목이 없습니다.";
+        elements.deleteConfirm.classList.add("hidden");
+        return;
+      }
+
+      const preview = selectedItems.slice(0, 3).map(deleteItemLabel).join(", ");
+      const more = selectedItems.length > 3 ? ` 외 ${selectedItems.length - 3}개` : "";
+      elements.deleteSelectedText.textContent = `선택됨 ${selectedItems.length}개: ${preview}${more}`;
+      elements.deleteConfirm.textContent = deleteMode === "supplier"
+        ? `선택한 도매처 ${selectedItems.length}개 삭제`
+        : `선택한 쇼핑몰 ${selectedItems.length}개 삭제`;
+      elements.deleteConfirm.classList.remove("hidden");
+    }
+
+    function confirmDeleteSelected() {
+      if (!deleteMode || !selectedDeleteIds.size) return;
+
+      if (deleteMode === "supplier") {
+        const suppliers = state.suppliers.filter((item) => selectedDeleteIds.has(item.id));
+        if (!suppliers.length) return;
+
+        if (!confirm(`선택한 도매처 ${suppliers.length}개를 삭제할까요?\n선택한 도매처의 모든 쇼핑몰 체크 상태와 메모도 함께 삭제됩니다.`)) return;
+
+        const supplierIds = new Set(suppliers.map((item) => item.id));
+        state.suppliers = state.suppliers.filter((item) => !supplierIds.has(item.id));
+        Object.keys(state.cells).forEach((key) => {
+          const supplierId = key.split("__")[0];
+          if (supplierIds.has(supplierId)) delete state.cells[key];
+        });
+      } else {
+        const malls = state.malls.filter((item) => selectedDeleteIds.has(item.id));
+        if (!malls.length) return;
+
+        if (!confirm(`선택한 쇼핑몰 ${malls.length}개를 삭제할까요?\n선택한 쇼핑몰의 모든 도매처 체크 상태와 메모도 함께 삭제됩니다.`)) return;
+
+        const mallIds = new Set(malls.map((item) => item.id));
+        state.malls = state.malls.filter((item) => !mallIds.has(item.id));
+        Object.keys(state.cells).forEach((key) => {
+          const mallId = key.split("__")[1];
+          if (mallIds.has(mallId)) delete state.cells[key];
+        });
+        initFilters();
+        elements.platformFilter.value = "all";
+      }
+
+      saveState();
+      closeDeleteModal();
+      render();
+    }
+
+    function orderSupplier() {
+      openOrderModal("supplier");
+    }
+
+    function orderMall() {
+      openOrderModal("mall");
+    }
+
+    function openOrderModal(mode) {
+      orderMode = mode;
+      selectedOrderId = "";
+      elements.orderSearch.value = "";
+
+      if (mode === "supplier") {
+        elements.orderModalTitle.textContent = "도매처 순서 변경";
+        elements.orderModalSubtitle.textContent = "도매처를 선택한 뒤 위아래로 이동하면 메인 표의 행 순서가 바뀝니다.";
+      } else {
+        elements.orderModalTitle.textContent = "쇼핑몰 순서 변경";
+        elements.orderModalSubtitle.textContent = "쇼핑몰을 선택한 뒤 위아래로 이동하면 메인 표의 열 순서가 바뀝니다.";
+      }
+
+      renderOrderList();
+      elements.orderModalBackdrop.classList.add("open");
+      elements.orderSearch.focus();
+    }
+
+    function closeOrderModal() {
+      elements.orderModalBackdrop.classList.remove("open");
+      orderMode = null;
+      selectedOrderId = "";
+    }
+
+    function orderItems() {
+      return orderMode === "supplier" ? state.suppliers : state.malls;
+    }
+
+    function renderOrderList() {
+      const items = orderItems();
+      if (!items.length) {
+        selectedOrderId = "";
+        elements.orderItemList.innerHTML = `<div class="empty">순서를 바꿀 항목이 없습니다.</div>`;
+        updateOrderSelectionUi();
+        return;
+      }
+
+      const search = normalize(elements.orderSearch.value);
+      const filtered = items.filter((item) => orderItemText(item).includes(search));
+
+      if (!filtered.length) {
+        elements.orderItemList.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`;
+        updateOrderSelectionUi();
+        return;
+      }
+
+      elements.orderItemList.innerHTML = filtered.map((item) => {
+        const selected = selectedOrderId === item.id ? " selected" : "";
+        const index = items.findIndex((entry) => entry.id === item.id) + 1;
+        const title = item.name;
+        const meta = orderMode === "supplier"
+          ? `공급사코드 ${item.supplierCode || "-"}`
+          : `쇼핑몰 묶음 ${item.platform}`;
+
+        return `
+          <button class="delete-item order-item${selected}" type="button" data-order-id="${escapeHtml(item.id)}">
+            <span class="order-number">${index}</span>
+            <span class="order-item-body">
+              <span class="delete-item-title">${escapeHtml(title)}</span>
+              <span class="delete-item-meta">${escapeHtml(meta)}</span>
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      elements.orderItemList.querySelectorAll(".order-item").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedOrderId = button.dataset.orderId;
+          renderOrderList();
+        });
+      });
+
+      updateOrderSelectionUi();
+    }
+
+    function orderItemText(item) {
+      if (!item) return "";
+      if (orderMode === "supplier") {
+        return normalize([item.name, item.supplierCode].join(" "));
+      }
+      return normalize([item.platform, item.name].join(" "));
+    }
+
+    function orderItemLabel(item) {
+      if (orderMode === "supplier") {
+        return `${item.name} (${item.supplierCode || "-"})`;
+      }
+      return `[${item.platform}] ${item.name}`;
+    }
+
+    function selectedOrderIndex() {
+      return orderItems().findIndex((item) => item.id === selectedOrderId);
+    }
+
+    function updateOrderSelectionUi() {
+      const items = orderItems();
+      const index = selectedOrderIndex();
+      const controls = [elements.orderTop, elements.orderUp, elements.orderDown, elements.orderBottom];
+
+      if (index < 0) {
+        elements.orderSelectedText.textContent = "순서를 바꿀 항목을 선택하세요.";
+        controls.forEach((button) => {
+          button.disabled = true;
+        });
+        return;
+      }
+
+      elements.orderSelectedText.textContent = `${index + 1}번째: ${orderItemLabel(items[index])}`;
+      elements.orderTop.disabled = index === 0;
+      elements.orderUp.disabled = index === 0;
+      elements.orderDown.disabled = index === items.length - 1;
+      elements.orderBottom.disabled = index === items.length - 1;
+    }
+
+    function moveSelectedOrder(toIndex) {
+      const items = orderItems();
+      const fromIndex = selectedOrderIndex();
+      if (fromIndex < 0) return;
+
+      const nextIndex = Math.max(0, Math.min(items.length - 1, toIndex));
+      if (fromIndex === nextIndex) return;
+
+      const [item] = items.splice(fromIndex, 1);
+      items.splice(nextIndex, 0, item);
+      refreshAfterOrderChange();
+    }
+
+    function refreshAfterOrderChange() {
+      const currentPlatform = elements.platformFilter.value;
+      saveState();
+
+      if (orderMode === "mall") {
+        initFilters();
+        const platformExists = [...elements.platformFilter.options].some((option) => option.value === currentPlatform);
+        elements.platformFilter.value = platformExists ? currentPlatform : "all";
+      }
+
+      render();
+      renderOrderList();
+    }
+
+    function openUplatModal() {
+      const source = buildUplatCollectorScript();
+      elements.uplatBookmarkLink.href = buildUplatBookmarklet(source);
+      elements.uplatBookmarkLink.setAttribute("title", "이 링크를 크롬 북마크바로 드래그하세요.");
+      elements.uplatStatusText.textContent = "";
+      elements.uplatModalBackdrop.classList.add("open");
+      elements.uplatBookmarkLink.focus();
+    }
+
+    function closeUplatModal() {
+      elements.uplatModalBackdrop.classList.remove("open");
+    }
+
+    function buildUplatBookmarklet(source = buildUplatCollectorScript()) {
+      return "javascript:" + encodeURIComponent(source);
+    }
+
+    function buildUplatCollectorScript() {
+      const config = {
+        type: "uplat-collector-config-v1",
+        malls: state.malls.map((mall) => ({
+          platform: mall.platform,
+          mallName: mall.name
+        })),
+        suppliers: state.suppliers.map((supplier) => ({
+          supplierName: supplier.name,
+          supplierCode: supplier.supplierCode
+        }))
+      };
+
+      const source = `
+(async function () {
+  const config = ${JSON.stringify(config)};
+  const clean = (value) => String(value || "").replace(/\\s+/g, " ").trim();
+  const compact = (value) => clean(value).toLowerCase().replace(/[\\s\\[\\]\\(\\),._-]+/g, "");
+  const today = () => new Date().toLocaleDateString("sv-SE");
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  function optionText(option) {
+    return clean(option ? option.textContent : "");
+  }
+
+  function optionValue(option) {
+    return clean(option ? option.value : "");
+  }
+
+  function scoreMarketSelect(select) {
+    return Array.from(select.options).reduce((score, option) => {
+      const text = optionText(option);
+      const key = compact(text);
+      let next = score;
+      if (text.startsWith("[") && text.includes("]")) next += 3;
+      if (/\\[[^\\]]+\\].*\\([0-9,]+\\s*건\\)/.test(text)) next += 8;
+      config.malls.slice(0, 20).forEach((mall) => {
+        if (key.includes(compact(mall.mallName))) next += 2;
+        if (key.includes(compact(mall.platform))) next += 1;
+      });
+      return next;
+    }, 0);
+  }
+
+  function scoreSupplierSelect(select) {
+    return Array.from(select.options).reduce((score, option) => {
+      const textKey = compact(optionText(option));
+      const valueKey = compact(optionValue(option));
+      let next = score;
+      if (/^[A-Z0-9]{3,12}$/.test(optionText(option))) next += 2;
+      config.suppliers.forEach((supplier) => {
+        const codeKey = compact(supplier.supplierCode);
+        if (codeKey && (textKey === codeKey || valueKey === codeKey || textKey.includes(codeKey))) next += 4;
+      });
+      return next;
+    }, 0);
+  }
+
+  function bestSelect(scoring) {
+    return Array.from(document.querySelectorAll("select"))
+      .map((select) => ({ select, score: scoring(select) }))
+      .sort((a, b) => b.score - a.score)[0]?.select || null;
+  }
+
+  const marketSelect = bestSelect(scoreMarketSelect);
+  const supplierSelect = bestSelect(scoreSupplierSelect);
+
+  if (!marketSelect || !supplierSelect || scoreMarketSelect(marketSelect) <= 0 || scoreSupplierSelect(supplierSelect) <= 0) {
+    alert("마켓선택 또는 도매처 선택칸을 찾지 못했습니다. 유플랫 등록제품관리 화면에서 다시 실행해 주세요.");
+    return;
+  }
+
+  function optionMatchesMall(option, mall) {
+    const textKey = compact(optionText(option));
+    return textKey.includes(compact(mall.mallName)) && (!mall.platform || textKey.includes(compact(mall.platform)));
+  }
+
+  function optionMatchesSupplier(option, supplier) {
+    const codeKey = compact(supplier.supplierCode);
+    const textKey = compact(optionText(option));
+    const valueKey = compact(optionValue(option));
+    return codeKey && (valueKey === codeKey || textKey === codeKey || textKey.includes(codeKey));
+  }
+
+  function matchMarketOption(mall) {
+    return Array.from(marketSelect.options).find((option) => optionMatchesMall(option, mall));
+  }
+
+  function matchSupplierOption(supplier) {
+    return Array.from(supplierSelect.options).find((option) => optionMatchesSupplier(option, supplier));
+  }
+
+  function splitMarketText(text) {
+    const matched = clean(text).match(/^\\[([^\\]]+)\\]\\s*(.*?)\\s*(?:\\([0-9,]+\\s*건\\))?$/);
+    if (matched) return { platform: matched[1], mallName: matched[2] };
+    return { platform: "", mallName: clean(text).replace(/\\([0-9,]+\\s*건\\)/g, "").trim() };
+  }
+
+  function parseCount(text) {
+    const main = String(text || "").match(/전체\\s*:\\s*([0-9,]+)\\s*건\\s*\\(([0-9,]+)\\s*개\\s*상품\\)/);
+    const sub = String(text || "").match(/\\(([0-9,]+)\\s*개\\s*상품\\)/);
+    const matched = main || sub;
+    if (matched) {
+      const countText = main ? matched[2] : matched[1];
+      return {
+        count: Number(countText.replace(/,/g, "")),
+        sourceText: matched[0]
+      };
+    }
+    // 검색 결과가 0건이면 유플랫은 "(N개 상품)" 없이 "전체: 0건"만 출력한다
+    const empty = String(text || "").match(/전체\\s*:\\s*0\\s*건/);
+    if (empty) return { count: 0, sourceText: empty[0] };
+    return { count: null, sourceText: "" };
+  }
+
+  function makePanel() {
+    const panel = document.createElement("div");
+    panel.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:999999;background:#111827;color:#fff;padding:10px 12px;border-radius:8px;font-size:13px;box-shadow:0 8px 22px rgba(0,0,0,.22);";
+    document.body.appendChild(panel);
+    return panel;
+  }
+
+  function downloadPayload(payload) {
+    const text = JSON.stringify(payload, null, 2);
+    navigator.clipboard?.writeText(text).catch(() => {});
+    const blob = new Blob([text], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "유플랫_상품수_" + new Date().toLocaleString("sv-SE").replace(/[^0-9]/g, "").slice(0, 12) + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function fetchCount(marketOption, supplierOption) {
+    const form = marketSelect.form || supplierSelect.form || document.querySelector("form");
+    if (!form || !marketSelect.name || !supplierSelect.name) {
+      throw new Error("검색 폼 정보를 찾지 못했습니다.");
+    }
+
+    const data = new FormData(form);
+    data.set(marketSelect.name, optionValue(marketOption));
+    data.set(supplierSelect.name, optionValue(supplierOption));
+
+    const method = clean(form.getAttribute("method") || "GET").toUpperCase();
+    const url = new URL(form.getAttribute("action") || location.href, location.href);
+    const options = { credentials: "include" };
+
+    if (method === "GET") {
+      url.search = new URLSearchParams(data).toString();
+    } else {
+      options.method = method;
+      options.body = data;
+    }
+
+    const controller = new AbortController();
+    options.signal = controller.signal;
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(url.toString(), options);
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const html = await response.text();
+      return parseCount(new DOMParser().parseFromString(html, "text/html").body.innerText);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  function currentSelectionRow() {
+    const marketOption = marketSelect.selectedOptions[0] || marketSelect.options[marketSelect.selectedIndex];
+    const supplierOption = supplierSelect.selectedOptions[0] || supplierSelect.options[supplierSelect.selectedIndex];
+    const marketText = optionText(marketOption);
+    const supplierText = optionText(supplierOption);
+    const mall = splitMarketText(marketText);
+    const supplier = config.suppliers.find((item) => optionMatchesSupplier(supplierOption, item)) || {
+      supplierName: supplierText,
+      supplierCode: supplierText
+    };
+    const parsed = parseCount(document.body.innerText);
+    return {
+      platform: mall.platform || "",
+      mallName: mall.mallName || "",
+      marketText,
+      supplierName: supplier.supplierName || supplierText,
+      supplierCode: supplier.supplierCode || supplierText,
+      supplierText,
+      count: parsed.count,
+      date: today(),
+      sourceText: parsed.sourceText
+    };
+  }
+
+  const collectAll = confirm("확인: 유플랫의 개별 마켓/도매처 전체 조합을 수집합니다. 신규 항목은 결과 가져오기 시 자동 등록됩니다.\\n취소: 지금 선택된 마켓/도매처 1개만 수집합니다.");
+  const rows = [];
+  let aborted = false;
+
+  if (!collectAll) {
+    rows.push(currentSelectionRow());
+  } else {
+    const panel = makePanel();
+    const targets = [];
+    const marketOptions = Array.from(marketSelect.options).filter((option) => {
+      const text = optionText(option);
+      const mall = splitMarketText(text);
+      return !option.disabled && !!optionValue(option) && !!mall.platform &&
+        !!mall.mallName && !/전체|계정/.test(mall.mallName + mall.platform);
+    });
+    const supplierOptions = Array.from(supplierSelect.options).filter((option) =>
+      !option.disabled && !!optionValue(option) && /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(optionText(option)) &&
+      !/^(all|none|null|select|0)$/i.test(optionText(option))
+    );
+    marketOptions.forEach((marketOption) => {
+      const mall = splitMarketText(optionText(marketOption));
+      supplierOptions.forEach((supplierOption) => {
+        const code = optionText(supplierOption);
+        const supplier = config.suppliers.find((item) => compact(item.supplierCode) === compact(code)) ||
+          { supplierName: code, supplierCode: code };
+        targets.push({ mall, supplier, marketOption, supplierOption });
+      });
+    });
+
+    if (!targets.length) {
+      panel.remove();
+      alert("수집할 마켓/도매처 조합을 찾지 못했습니다.");
+      return;
+    }
+
+    let consecutiveFails = 0;
+
+    const concurrency = 3;
+    for (let index = 0; index < targets.length; index += concurrency) {
+      const batch = targets.slice(index, index + concurrency);
+      panel.textContent = "유플랫 상품 수 수집 중 " + rows.length + " / " + targets.length;
+      const results = await Promise.all(batch.map(async (target) => {
+      let parsed = { count: null, sourceText: "" };
+      try {
+        parsed = await fetchCount(target.marketOption, target.supplierOption);
+      } catch (error) {
+        parsed = { count: null, sourceText: String(error.message || error) };
+      }
+      return {
+        platform: target.mall.platform,
+        mallName: target.mall.mallName,
+        marketText: optionText(target.marketOption),
+        supplierName: target.supplier.supplierName,
+        supplierCode: target.supplier.supplierCode,
+        supplierText: optionText(target.supplierOption),
+        count: parsed.count,
+        date: today(),
+        sourceText: parsed.sourceText
+      };
+      }));
+
+      // Keep results in target order even when requests finish out of order.
+      rows.push(...results);
+      for (const result of results) {
+      if (typeof result.count === "number") {
+        consecutiveFails = 0;
+      } else {
+        consecutiveFails += 1;
+        // 응답이 연달아 비면 로그인이 풀렸거나 서버가 요청을 막은 상태라 계속 돌아도 의미가 없다
+        if (consecutiveFails >= 5) {
+          aborted = true;
+        }
+      }
+      }
+      panel.textContent = "유플랫 상품 수 수집 중 " + rows.length + " / " + targets.length;
+      if (aborted) break;
+      if (index + concurrency < targets.length) await sleep(450);
+    }
+    panel.remove();
+  }
+
+  // count가 null이면 Number(null)이 0이 되어 실패까지 성공으로 세므로 타입으로 확인한다
+  const validCount = rows.filter((row) => typeof row.count === "number").length;
+  const failCount = rows.length - validCount;
+  const payload = {
+    type: "uplat-market-counts-v1",
+    createdAt: new Date().toISOString(),
+    rows
+  };
+  downloadPayload(payload);
+
+  let message = "유플랫 상품 수 " + validCount + "개 항목을 수집했습니다.";
+  if (failCount) {
+    message += "\\n응답을 읽지 못한 " + failCount + "개는 저장하지 않았고, 현황판에서도 건너뜁니다.";
+  }
+  if (aborted) {
+    message += "\\n\\n유플랫 응답이 연달아 비어서 수집을 중간에 멈췄습니다."
+      + "\\n로그인이 풀렸을 수 있으니 유플랫 화면을 새로고침해 다시 로그인한 뒤 실행해 주세요.";
+  }
+  message += "\\n다운로드된 JSON 파일을 현황판의 유플랫 연동창에서 가져오면 됩니다.";
+  alert(message);
+})();
+      `.trim();
+
+      return source;
+    }
+
+    function applyUplatImportText(text) {
+      try {
+        const payload = JSON.parse(text);
+        const result = applyUplatPayload(payload);
+        const keptText = result.keptStatus ? `, 수동 상태 유지 ${result.keptStatus}개` : "";
+        elements.uplatStatusText.textContent = `반영 완료: ${result.updated}개 셀 업데이트, 신규 쇼핑몰 ${result.addedMalls}개 · 도매처 ${result.addedSuppliers}개 추가, ${result.skipped}개 건너뜀${keptText}`;
+      } catch (error) {
+        alert("유플랫 수집 결과를 읽지 못했습니다. JSON 파일을 확인해 주세요.");
+      }
+    }
+
+    function importUplatFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        applyUplatImportText(String(reader.result || ""));
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function applyUplatPayload(payload) {
+      const rows = Array.isArray(payload) ? payload : (Array.isArray(payload?.rows) ? payload.rows : []);
+      if (!rows.length) {
+        throw new Error("No rows");
+      }
+
+      let updated = 0;
+      let skipped = 0;
+      let keptStatus = 0;
+      let addedMalls = 0;
+      let addedSuppliers = 0;
+
+      rows.forEach((row) => {
+        if (!row || typeof row !== "object") { skipped += 1; return; }
+        const count = parseCountNumber(row.count);
+        const platform = String(row.platform || "").trim();
+        const mallName = String(row.mallName || "").trim();
+        const code = String(row.supplierCode || "").trim();
+        if (!Number.isInteger(count) || count < 0 || !platform || !mallName || !code ||
+            /전체|계정/.test(platform + mallName) || !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(code)) {
+          skipped += 1;
+          return;
+        }
+        let mall = state.malls.find((item) => compactMatchText(item.platform) === compactMatchText(platform) &&
+          compactMatchText(item.name) === compactMatchText(mallName));
+        let supplier = state.suppliers.find((item) => compactMatchText(item.supplierCode) === compactMatchText(code));
+        if (!mall) {
+          mall = { id: uniqueMallId("mall-uplat-" + Date.now()), platform, name: mallName };
+          state.malls.push(mall);
+          addedMalls += 1;
+        }
+        if (!supplier) {
+          supplier = { id: uniqueSupplierId("supplier-uplat-" + code.toLowerCase()),
+            name: String(row.supplierName || code).trim(), supplierCode: code, productCode: "" };
+          state.suppliers.push(supplier);
+          addedSuppliers += 1;
+        }
+
+        const key = cellKey(supplier.id, mall.id);
+        const current = getCell(supplier.id, mall.id);
+        // 직접 지정한 예정/일부/문제 상태는 유지하고 상품 수와 날짜만 갱신
+        const manualStatus = ["todo", "partial", "issue"].includes(current.status);
+        if (manualStatus) keptStatus += 1;
+
+        state.cells[key] = {
+          ...current,
+          status: manualStatus ? current.status : (count > 0 ? "done" : "none"),
+          count: String(count),
+          date: row.date || todayValue()
+        };
+        updated += 1;
+      });
+
+      saveState();
+      render();
+      return { updated, skipped, keptStatus, addedMalls, addedSuppliers };
+    }
+
+    function findUplatMall(row) {
+      const platformKey = compactMatchText(row.platform || row.mallPlatform || row.marketPlatform);
+      const nameKey = compactMatchText(row.mallName || row.marketName || row.name);
+      const marketTextKey = compactMatchText(row.marketText || row.market || "");
+
+      return state.malls.find((mall) => {
+        const mallPlatformKey = compactMatchText(mall.platform);
+        const mallNameKey = compactMatchText(mall.name);
+        const bothKey = compactMatchText(`[${mall.platform}] ${mall.name}`);
+
+        if (platformKey && nameKey && platformKey === mallPlatformKey && nameKey === mallNameKey) return true;
+        if (nameKey && nameKey === mallNameKey) return true;
+        if (marketTextKey && (marketTextKey.includes(bothKey) || marketTextKey.includes(mallNameKey))) return true;
+        return false;
+      });
+    }
+
+    function findUplatSupplier(row) {
+      const codeKey = compactMatchText(row.supplierCode || row.code);
+      const nameKey = compactMatchText(row.supplierName || row.name);
+      const supplierTextKey = compactMatchText(row.supplierText || row.supplier || "");
+
+      return state.suppliers.find((supplier) => {
+        const supplierCodeKey = compactMatchText(supplier.supplierCode);
+        const supplierNameKey = compactMatchText(supplier.name);
+
+        if (codeKey && supplierCodeKey && codeKey === supplierCodeKey) return true;
+        if (supplierTextKey && supplierCodeKey && supplierTextKey.includes(supplierCodeKey)) return true;
+        if (nameKey && supplierNameKey && nameKey === supplierNameKey) return true;
+        return false;
+      });
+    }
+
+    function parseCountNumber(value) {
+      // 수집 실패(null·빈값)를 0으로 취급하면 멀쩡한 셀이 0개로 덮어써지므로 NaN으로 걸러낸다
+      if (value === null || value === undefined) return NaN;
+      const cleaned = String(value).replace(/,/g, "").trim();
+      if (!cleaned) return NaN;
+      const number = Number(cleaned);
+      return Number.isFinite(number) ? number : NaN;
+    }
+
+    function compactMatchText(value) {
+      return normalize(value).replace(/[\s\[\]\(\),._-]+/g, "");
+    }
+
+    function todayValue() {
+      return new Date().toLocaleDateString("sv-SE");
+    }
+
+    function uniqueSupplierId(baseId) {
+      let id = baseId || `supplier-${Date.now()}`;
+      let index = 2;
+      while (state.suppliers.some((supplier) => supplier.id === id)) {
+        id = `${baseId}-${index}`;
+        index += 1;
+      }
+      return id;
+    }
+
+    function uniqueMallId(baseId) {
+      let id = baseId || `mall-${Date.now()}`;
+      let index = 2;
+      while (state.malls.some((mall) => mall.id === id)) {
+        id = `${baseId}-${index}`;
+        index += 1;
+      }
+      return id;
+    }
+
+    function exportCsv() {
+      const rows = [[
+        "도매처명",
+        "공급사코드",
+        "쇼핑몰묶음",
+        "쇼핑몰명",
+        "상태",
+        "상품수",
+        "마지막업로드일",
+        "관리링크",
+        "메모"
+      ]];
+
+      state.suppliers.forEach((supplier) => {
+        state.malls.forEach((mall) => {
+          const cell = getCell(supplier.id, mall.id);
+          rows.push([
+            supplier.name,
+            supplier.supplierCode,
+            mall.platform,
+            mall.name,
+            statusLabels[cell.status] || statusLabels.none,
+            cell.count || "",
+            cell.date || "",
+            cell.link || "",
+            cell.memo || ""
+          ]);
+        });
+      });
+
+      const csv = rows.map((row) => row.map(csvValue).join(",")).join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `쇼핑몰_도매처_현황_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportJson() {
+      const backup = {
+        app: "supplierMallDashboard",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        state
+      };
+      const json = JSON.stringify(backup, null, 2);
+      const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `쇼핑몰_도매처_백업_${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result || ""));
+          const importedState = normalizeImportedState(parsed.state || parsed);
+
+          if (!importedState) {
+            alert("JSON 형식이 맞지 않습니다. 이 화면에서 저장한 JSON 파일을 불러와 주세요.");
+            return;
+          }
+
+          if (!confirm("현재 화면의 저장 내용이 불러온 JSON 내용으로 교체됩니다.\n계속할까요?")) {
+            return;
+          }
+
+          state = importedState;
+          activeCell = null;
+          closeDrawer();
+          saveState();
+          initFilters();
+          render();
+          alert("JSON 불러오기가 완료되었습니다.");
+        } catch {
+          alert("JSON 파일을 읽을 수 없습니다. 저장하기로 만든 파일인지 확인해 주세요.");
+        }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function normalizeImportedState(data) {
+      if (!data || !Array.isArray(data.suppliers) || !Array.isArray(data.malls) || typeof data.cells !== "object") {
+        return null;
+      }
+
+      return {
+        suppliers: data.suppliers.map((supplier, index) => ({
+          id: String(supplier.id || `supplier-import-${index + 1}`),
+          name: String(supplier.name || ""),
+          productCode: String(supplier.productCode || ""),
+          supplierCode: String(supplier.supplierCode || "")
+        })).filter((supplier) => supplier.name),
+        malls: data.malls.map((mall, index) => ({
+          id: String(mall.id || `mall-import-${index + 1}`),
+          platform: String(mall.platform || ""),
+          name: String(mall.name || "")
+        })).filter((mall) => mall.platform && mall.name),
+        cells: Object.entries(data.cells || {}).reduce((cells, [key, value]) => {
+          if (!value || typeof value !== "object") return cells;
+          cells[key] = {
+            status: statusOrder.includes(value.status) ? value.status : "none",
+            count: String(value.count || ""),
+            date: String(value.date || ""),
+            link: String(value.link || ""),
+            memo: String(value.memo || "")
+          };
+          return cells;
+        }, {})
+      };
+    }
+
+    function csvValue(value) {
+      const text = String(value ?? "");
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let quoted = false;
+
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"' && quoted && next === '"') {
+          cell += '"';
+          i += 1;
+        } else if (char === '"') {
+          quoted = !quoted;
+        } else if (char === "," && !quoted) {
+          row.push(cell);
+          cell = "";
+        } else if ((char === "\n" || char === "\r") && !quoted) {
+          if (char === "\r" && next === "\n") i += 1;
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += char;
+        }
+      }
+
+      if (cell || row.length) {
+        row.push(cell);
+        rows.push(row);
+      }
+
+      return rows.filter((items) => items.some((item) => item.trim()));
+    }
+
+    function importCsv(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const rows = parseCsv(String(reader.result || ""));
+        const header = rows.shift() || [];
+        const column = (name) => header.indexOf(name);
+
+        const idx = {
+          supplierName: column("도매처명"),
+          productCode: column("상품구분코드"),
+          supplierCode: column("공급사코드"),
+          platform: column("쇼핑몰묶음"),
+          mallName: column("쇼핑몰명"),
+          status: column("상태"),
+          count: column("상품수"),
+          date: column("마지막업로드일"),
+          link: column("관리링크"),
+          memo: column("메모")
+        };
+
+        if (idx.supplierName < 0 || idx.mallName < 0 || idx.status < 0) {
+          alert("CSV 형식이 맞지 않습니다. 이 화면에서 내보낸 CSV를 다시 가져와 주세요.");
+          return;
+        }
+
+        rows.forEach((row) => {
+          const supplierName = row[idx.supplierName] || "";
+          const productCode = idx.productCode >= 0 ? (row[idx.productCode] || "") : "";
+          const supplierCode = row[idx.supplierCode] || "";
+          const mallName = row[idx.mallName] || "";
+          const platform = row[idx.platform] || "";
+          if (!supplierName || !mallName || !platform) return;
+
+          let mall = state.malls.find((item) => item.name === mallName && item.platform === platform);
+          if (!mall) {
+            mall = {
+              id: uniqueMallId(`mall-${platform}-${mallName}`.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-")),
+              platform,
+              name: mallName
+            };
+            state.malls.push(mall);
+          }
+
+          let supplier = state.suppliers.find((item) => item.name === supplierName && item.supplierCode === supplierCode);
+          if (!supplier) {
+            supplier = {
+              id: uniqueSupplierId(`supplier-${supplierName}-${supplierCode || productCode}`.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-")),
+              name: supplierName,
+              productCode: "",
+              supplierCode
+            };
+            state.suppliers.push(supplier);
+          }
+
+          setCell(supplier.id, mall.id, {
+            status: labelToStatus(row[idx.status]),
+            count: row[idx.count] || "",
+            date: row[idx.date] || "",
+            link: row[idx.link] || "",
+            memo: row[idx.memo] || ""
+          });
+        });
+
+        saveState();
+        initFilters();
+        render();
+        alert("CSV 가져오기가 완료되었습니다.");
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function labelToStatus(label) {
+      const entry = Object.entries(statusLabels).find(([, text]) => text === label);
+      return entry ? entry[0] : (statusOrder.includes(label) ? label : "none");
+    }
+
+    elements.search.addEventListener("input", render);
+    elements.platformFilter.addEventListener("change", render);
+    elements.statusFilter.addEventListener("change", render);
+    elements.matrixWrap.addEventListener("scroll", updateFloatingHeader, { passive: true });
+    elements.matrixWrap.addEventListener("scroll", updateFloatingXScroll, { passive: true });
+    elements.floatingXScroll.addEventListener("scroll", syncMatrixScrollFromFloating, { passive: true });
+    window.addEventListener("scroll", () => {
+      updateFloatingHeader();
+      updateFloatingXScroll();
+    }, { passive: true });
+    window.addEventListener("resize", () => {
+      updateFloatingHeader();
+      updateFloatingXScroll();
+    });
+    elements.clearFilters.addEventListener("click", () => {
+      elements.search.value = "";
+      elements.platformFilter.value = "all";
+      elements.statusFilter.value = "all";
+      render();
+    });
+    containModalWheel(elements.supplierModalBackdrop, elements.supplierModalBackdrop.querySelector(".modal-form-body"));
+    containModalWheel(elements.mallModalBackdrop, elements.mallModalBackdrop.querySelector(".modal-form-body"));
+    containModalWheel(elements.deleteModalBackdrop, elements.deleteItemList);
+    containModalWheel(elements.orderModalBackdrop, elements.orderItemList);
+    containModalWheel(elements.uplatModalBackdrop, elements.uplatBody);
+    forwardBackdropWheel(elements.supplierModalBackdrop);
+    forwardBackdropWheel(elements.mallModalBackdrop);
+    forwardBackdropWheel(elements.deleteModalBackdrop);
+    forwardBackdropWheel(elements.orderModalBackdrop);
+    forwardBackdropWheel(elements.uplatModalBackdrop);
+    elements.addSupplier.addEventListener("click", addSupplier);
+    elements.supplierForm.addEventListener("submit", saveSupplier);
+    elements.supplierCancel.addEventListener("click", closeSupplierModal);
+    elements.supplierModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === elements.supplierModalBackdrop) closeSupplierModal();
+    });
+    elements.deleteSupplier.addEventListener("click", deleteSupplier);
+    elements.orderSupplier.addEventListener("click", orderSupplier);
+    elements.addMall.addEventListener("click", addMall);
+    elements.mallForm.addEventListener("submit", saveMall);
+    elements.mallCancel.addEventListener("click", closeMallModal);
+    elements.mallModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === elements.mallModalBackdrop) closeMallModal();
+    });
+    elements.deleteMall.addEventListener("click", deleteMall);
+    elements.orderMall.addEventListener("click", orderMall);
+    elements.deleteSearch.addEventListener("input", renderDeleteList);
+    elements.deleteCancel.addEventListener("click", closeDeleteModal);
+    elements.deleteConfirm.addEventListener("click", confirmDeleteSelected);
+    elements.deleteModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === elements.deleteModalBackdrop) closeDeleteModal();
+    });
+    elements.orderSearch.addEventListener("input", renderOrderList);
+    elements.orderClose.addEventListener("click", closeOrderModal);
+    elements.orderTop.addEventListener("click", () => moveSelectedOrder(0));
+    elements.orderUp.addEventListener("click", () => moveSelectedOrder(selectedOrderIndex() - 1));
+    elements.orderDown.addEventListener("click", () => moveSelectedOrder(selectedOrderIndex() + 1));
+    elements.orderBottom.addEventListener("click", () => moveSelectedOrder(orderItems().length - 1));
+    elements.orderModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === elements.orderModalBackdrop) closeOrderModal();
+    });
+    elements.uplatBtn.addEventListener("click", openUplatModal);
+    elements.uplatBookmarkLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      elements.uplatStatusText.textContent = "이 링크는 클릭하지 말고 크롬 북마크바로 드래그해서 저장하세요.";
+    });
+    elements.uplatClose.addEventListener("click", closeUplatModal);
+    elements.uplatImportFile.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) importUplatFile(file);
+      event.target.value = "";
+    });
+    elements.uplatModalBackdrop.addEventListener("click", (event) => {
+      if (event.target === elements.uplatModalBackdrop) closeUplatModal();
+    });
+    elements.saveJson.addEventListener("click", exportJson);
+    elements.loadJsonFile.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) importJson(file);
+      event.target.value = "";
+    });
+    elements.exportBtn.addEventListener("click", exportCsv);
+    elements.importFile.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) importCsv(file);
+      event.target.value = "";
+    });
+    elements.resetBtn.addEventListener("click", () => {
+      if (!confirm("초기화하면 도매처는 예시도매처A/예시도매처B만 남고, 쇼핑몰은 스마트스토어 묶음의 예시스토어 하나만 남습니다.\n체크 상태와 메모도 모두 삭제됩니다.\n초기화할까요?")) return;
+      state = resetState();
+      saveState();
+      initFilters();
+      render();
+    });
+
+    elements.detailForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!activeCell) return;
+
+      setCell(activeCell.supplierId, activeCell.mallId, {
+        status: elements.detailStatus.value,
+        count: elements.detailCount.value,
+        date: elements.detailDate.value,
+        link: elements.detailLink.value,
+        memo: elements.detailMemo.value
+      });
+
+      closeDrawer();
+      render();
+    });
+
+    elements.openLink.addEventListener("click", () => {
+      const url = elements.detailLink.value.trim();
+      if (!url) return;
+      window.open(url, "_blank", "noopener,noreferrer");
+    });
+
+    elements.closeDrawer.addEventListener("click", closeDrawer);
+    elements.backdrop.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (elements.supplierModalBackdrop.classList.contains("open")) {
+        closeSupplierModal();
+      } else if (elements.mallModalBackdrop.classList.contains("open")) {
+        closeMallModal();
+      } else if (elements.deleteModalBackdrop.classList.contains("open")) {
+        closeDeleteModal();
+      } else if (elements.orderModalBackdrop.classList.contains("open")) {
+        closeOrderModal();
+      } else if (elements.uplatModalBackdrop.classList.contains("open")) {
+        closeUplatModal();
+      } else {
+        closeDrawer();
+      }
+    });
+
+    // ===== 업데이트 확인 =====
+    // 새 버전은 GitHub Releases 에서 확인하고, 파일만 바꾼다.
+    // 현황판 데이터는 브라우저 저장소(STORAGE_KEY)에 있어서 파일을 바꿔도 그대로 남는다.
+    let pendingUpdate = null;
+    const updateBtn = document.getElementById("updateBtn");
+    document.getElementById("versionBadge").textContent = "v" + APP_VERSION;
+
+    function compareVersions(a, b) {
+      const pa = String(a).split(".").map(n => parseInt(n, 10) || 0);
+      const pb = String(b).split(".").map(n => parseInt(n, 10) || 0);
+      for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+        const diff = (pa[i] || 0) - (pb[i] || 0);
+        if (diff) return diff > 0 ? 1 : -1;
+      }
+      return 0;
+    }
+
+    async function checkForUpdate() {
+      if (!UPDATE_REPO) return;
+      try {
+        const response = await fetch(`https://api.github.com/repos/${UPDATE_REPO}/releases/latest`, {
+          headers: { Accept: "application/vnd.github+json" },
+          cache: "no-store"
+        });
+        if (!response.ok) return;
+        const release = await response.json();
+        const latest = String(release.tag_name || "").replace(/^v/i, "");
+        if (!latest || compareVersions(latest, APP_VERSION) <= 0) return;
+        pendingUpdate = { version: latest, tag: release.tag_name, notes: String(release.body || "").trim() };
+        updateBtn.textContent = `⬆ ${latest} 업데이트`;
+        updateBtn.title = pendingUpdate.notes || "새 버전이 있습니다";
+        updateBtn.classList.remove("hidden");
+      } catch {
+        // 인터넷이 안 되면 조용히 넘어간다
+      }
+    }
+
+    async function saveNewVersion(html) {
+      const currentName = decodeURIComponent(location.pathname.split("/").pop() || UPDATE_FILE);
+      const currentPath = decodeURIComponent(location.pathname).replace(/^\/+/, "").replace(/\//g, "\\");
+
+      if (typeof window.showSaveFilePicker === "function") {
+        alert(`저장 창이 열리면 지금 쓰고 있는 파일을 골라 덮어쓰세요.\n\n지금 파일 위치:\n${currentPath}`);
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: currentName,
+            types: [{ description: "HTML 파일", accept: { "text/html": [".html"] } }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(new Blob([html], { type: "text/html;charset=utf-8" }));
+          await writable.close();
+          alert(`저장했습니다 (${handle.name}).\n확인을 누르면 새로고침합니다.\n\n다른 위치에 저장했다면 앞으로는 그 파일을 여세요. 데이터는 그대로 보입니다.`);
+          location.reload();
+          return;
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            alert("업데이트를 취소했습니다. 지금 파일은 그대로입니다.");
+            return;
+          }
+          // 저장 창을 못 쓰면 일반 다운로드로 넘어간다
+        }
+      }
+
+      const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = currentName;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      alert(`새 버전을 '다운로드' 폴더에 받았습니다.\n\n지금 파일(${currentPath})을 받은 파일로 바꾸거나, 받은 파일을 여세요.\n같은 브라우저로 열면 데이터는 그대로 보입니다.`);
+    }
+
+    async function runUpdate() {
+      const update = pendingUpdate;
+      if (!update) return;
+      const notes = update.notes ? `\n\n바뀐 점:\n${update.notes}` : "";
+      if (!confirm(`새 버전 ${update.version} 으로 업데이트합니다.${notes}\n\n현황판 데이터는 이 컴퓨터 브라우저에 그대로 남습니다.\n만일을 위해 백업 파일(JSON)을 먼저 '다운로드' 폴더에 받아 둡니다.\n\n계속할까요?`)) {
+        return;
+      }
+
+      const label = updateBtn.textContent;
+      updateBtn.disabled = true;
+      updateBtn.textContent = "받는 중…";
+      try {
+        const fileUrl = `https://raw.githubusercontent.com/${UPDATE_REPO}/${encodeURIComponent(update.tag)}/${encodeURIComponent(UPDATE_FILE)}`;
+        const response = await fetch(fileUrl, { cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const html = await response.text();
+        // 새 파일이 같은 저장소 이름을 쓰는지 확인 (다르면 데이터가 안 보이므로 막는다)
+        if (!html.includes(`"${STORAGE_KEY}"`) || !html.includes(`APP_VERSION = "${update.version}"`)) {
+          throw new Error("받은 파일 확인 실패");
+        }
+        exportJson();
+        await saveNewVersion(html);
+      } catch (error) {
+        alert(`업데이트하지 못했습니다. 지금 파일과 데이터는 그대로입니다.\n(${error && error.message ? error.message : error})`);
+      } finally {
+        updateBtn.disabled = false;
+        updateBtn.textContent = label;
+      }
+    }
+
+    updateBtn.addEventListener("click", runUpdate);
+
+    initFilters();
+    render();
+    checkForUpdate();
+  </script>
+</body>
+</html>
